@@ -17,14 +17,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 缓存 Buildozer
-        uses: actions/cache@v4
-        with:
-          path: ~/.buildozer
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-
-
       - name: 安装编译依赖
         run: |
           sudo apt update
@@ -35,20 +27,31 @@ jobs:
             libssl-dev libltdl-dev
           pip install --upgrade pip buildozer cython
 
-      - name: 预接受 Android SDK 许可
+      - name: 设置 Android SDK（避免许可证问题）
         run: |
-          # 创建Android SDK许可证文件（避免交互式提示）
-          mkdir -p ~/.android
-          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.android/repositories.cfg
+          # 清空可能被污染的缓存（避免tools/bin/sdkmanager缺失问题）
+          rm -rf ~/.buildozer/android/platform/android-sdk
           
-          # 预下载并设置SDK（让buildozer能直接使用）
-          # 创建许可证文件路径
-          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-          echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
-          echo -e "\nd975f751698a77b662f1254ddbeed3901e976f5a" > ~/.buildozer/android/platform/android-sdk/licenses/intel-android-extra-license
+          # 直接下载并安装 Android 命令行工具
+          mkdir -p ~/.buildozer/android/platform/android-sdk
+          cd ~/.buildozer/android/platform/android-sdk
           
-          echo "✅ Android SDK 许可证已预接受"
+          # 下载新版命令行工具
+          curl -sSLO https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q commandlinetools-linux-11076708_latest.zip
+          rm -f commandlinetools-linux-11076708_latest.zip
+          
+          # 创建 tools 软链接（Buildozer 需要这个路径）
+          mv cmdline-tools tools
+          
+          # 接受所有许可证
+          yes | tools/bin/sdkmanager --sdk_root=$(pwd) --licenses > /dev/null 2>&1 || true
+          
+          # 安装必要组件
+          yes | tools/bin/sdkmanager --sdk_root=$(pwd) "platform-tools" "build-tools;34.0.0" "platforms;android-31" > /dev/null 2>&1 || true
+          
+          echo "✅ Android SDK 设置完成"
+          ls -la ~/.buildozer/android/platform/android-sdk/
 
       - name: 构建 APK
         run: |
