@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Build
+bin/
+.buildozer/
+
+# IDE
+.vscode/
+.idea/
+
+# Temp
+screenshot*.png
+take_screenshot.py
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
