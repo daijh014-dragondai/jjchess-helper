@@ -7,8 +7,8 @@ package.domain = org.jjchess.assistant
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.0.0
-version.regex = __version__ = ['"](.*)['"]
-version.filename = %(source.dir)s/main.py
+# version.regex = __version__ = ['"](.*)['"]
+# version.filename = %(source.dir)s/main.py
 
 # Python 依赖（Buildozer自动编译）
 requirements = python3,kivy==2.3.1,hostpython3,pyjnius,android
