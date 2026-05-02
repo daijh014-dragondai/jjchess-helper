@@ -3,7 +3,7 @@ name: 构建JJ象棋AI悬浮助手 APK
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:  # 手动触发
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 设置 Python
+      - name: 设置 Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -25,13 +25,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildozer-
 
-      - name: 安装依赖
+      - name: 安装编译依赖
         run: |
           sudo apt update
           sudo apt install -y \
             git zip unzip openjdk-17-jdk python3-pip autoconf \
             libtool pkg-config zlib1g-dev libncurses5-dev \
-            libncursesw5-dev libtinfo5 cmake libffi-dev \
+            libncursesw5-dev cmake libffi-dev \
             libssl-dev libltdl-dev
           pip install --upgrade pip buildozer cython
 
