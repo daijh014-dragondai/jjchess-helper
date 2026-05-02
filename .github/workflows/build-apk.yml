@@ -35,6 +35,21 @@ jobs:
             libssl-dev libltdl-dev
           pip install --upgrade pip buildozer cython
 
+      - name: 预接受 Android SDK 许可
+        run: |
+          # 创建Android SDK许可证文件（避免交互式提示）
+          mkdir -p ~/.android
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.android/repositories.cfg
+          
+          # 预下载并设置SDK（让buildozer能直接使用）
+          # 创建许可证文件路径
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+          echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
+          echo -e "\nd975f751698a77b662f1254ddbeed3901e976f5a" > ~/.buildozer/android/platform/android-sdk/licenses/intel-android-extra-license
+          
+          echo "✅ Android SDK 许可证已预接受"
+
       - name: 构建 APK
         run: |
           cd ${{ github.workspace }}
