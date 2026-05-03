@@ -17,20 +17,16 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 安装依赖（含编译工具）
+      - name: 安装依赖
         run: |
           sudo apt update
           sudo apt install -y \
             git zip unzip openjdk-17-jdk autoconf automake libtool \
             autopoint m4 pkg-config zlib1g-dev libncurses5-dev \
             libncursesw5-dev cmake libffi-dev libssl-dev python3-pip
-          pip install --upgrade pip buildozer cython setuptools
-
-      - name: 设置 Java 17 环境
-        run: |
-          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
-          sudo update-java-alternatives -s java-1.17.0-openjdk-amd64 2>/dev/null || true
-          java -version
+          pip install --upgrade pip buildozer setuptools
+          # 使用旧版 Cython 0.29.x 兼容 pyjnius 旧的 Python 2 代码
+          pip install "cython<3" "cython==0.29.37"
 
       - name: 预装 Android SDK
         run: |
@@ -44,8 +40,14 @@ jobs:
           yes | tools/bin/sdkmanager --sdk_root=$(pwd) --licenses 2>&1 | tail -3
           yes | tools/bin/sdkmanager --sdk_root=$(pwd) "platform-tools" "build-tools;37.0.0" "platforms;android-31" 2>&1 | tail -5
 
+      - name: 设置 Java 17
+        run: |
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
+          java -version
+
       - name: 构建 APK
         run: |
+          cd ${{ github.workspace }}
           buildozer android debug 2>&1
 
       - name: 上传 APK
