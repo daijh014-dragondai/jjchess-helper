@@ -13,7 +13,7 @@ android.permissions = SYSTEM_ALERT_WINDOW,INTERNET
 
 # SDK/NDK
 android.api = 34
-android.minapi = 29
+android.minapi = 33
 android.ndk = 25b
 android.ndk_api = 33
 
