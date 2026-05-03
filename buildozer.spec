@@ -17,7 +17,7 @@ requirements = python3,kivy==2.3.1,hostpython3,pyjnius,android
 android.permissions = SYSTEM_ALERT_WINDOW,INTERNET
 android.api = 31
 android.minapi = 29
-android.ndk = 23b
+android.ndk = 27c
 android.ndk_api = 29
 
 # 包名

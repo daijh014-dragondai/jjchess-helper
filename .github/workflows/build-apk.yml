@@ -27,31 +27,25 @@ jobs:
             libssl-dev libltdl-dev
           pip install --upgrade pip buildozer cython
 
-      - name: 设置 Android SDK（避免许可证问题）
+      - name: 初始化 Android SDK（含许可证接受）
         run: |
-          # 清空可能被污染的缓存（避免tools/bin/sdkmanager缺失问题）
-          rm -rf ~/.buildozer/android/platform/android-sdk
-          
-          # 直接下载并安装 Android 命令行工具
-          mkdir -p ~/.buildozer/android/platform/android-sdk
-          cd ~/.buildozer/android/platform/android-sdk
+          # 预建SDK目录，避免buildozer的交互式提示
+          mkdir -p ~/.buildozer/android/platform
           
           # 下载新版命令行工具
+          cd ~/.buildozer/android/platform
           curl -sSLO https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
           unzip -q commandlinetools-linux-11076708_latest.zip
           rm -f commandlinetools-linux-11076708_latest.zip
           
-          # 创建 tools 软链接（Buildozer 需要这个路径）
-          mv cmdline-tools tools
+          # Buildozer 期望 tools/bin/sdkmanager
+          mkdir -p android-sdk
+          mv cmdline-tools android-sdk/tools
           
           # 接受所有许可证
-          yes | tools/bin/sdkmanager --sdk_root=$(pwd) --licenses > /dev/null 2>&1 || true
+          yes | android-sdk/tools/bin/sdkmanager --sdk_root=$(pwd)/android-sdk --licenses > /dev/null 2>&1 || true
           
-          # 安装必要组件
-          yes | tools/bin/sdkmanager --sdk_root=$(pwd) "platform-tools" "build-tools;34.0.0" "platforms;android-31" > /dev/null 2>&1 || true
-          
-          echo "✅ Android SDK 设置完成"
-          ls -la ~/.buildozer/android/platform/android-sdk/
+          echo "✅ SDK初始化完成"
 
       - name: 构建 APK
         run: |
