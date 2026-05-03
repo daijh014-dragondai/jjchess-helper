@@ -25,25 +25,37 @@ jobs:
             autopoint m4 pkg-config zlib1g-dev libncurses5-dev \
             libncursesw5-dev cmake libffi-dev libssl-dev python3-pip
           pip install --upgrade pip buildozer setuptools
-          # 使用旧版 Cython 0.29.x 兼容 pyjnius 旧的 Python 2 代码
-          pip install "cython<3" "cython==0.29.37"
-
-      - name: 预装 Android SDK
-        run: |
-          rm -rf ~/.buildozer/android/platform/android-sdk
-          mkdir -p ~/.buildozer/android/platform/android-sdk
-          cd ~/.buildozer/android/platform/android-sdk
-          curl -sSLO https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip -q commandlinetools-linux-11076708_latest.zip
-          rm -f commandlinetools-linux-11076708_latest.zip
-          mv cmdline-tools tools
-          yes | tools/bin/sdkmanager --sdk_root=$(pwd) --licenses 2>&1 | tail -3
-          yes | tools/bin/sdkmanager --sdk_root=$(pwd) "platform-tools" "build-tools;37.0.0" "platforms;android-31" 2>&1 | tail -5
+          pip install "cython==0.29.37"
 
       - name: 设置 Java 17
         run: |
           echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
           java -version
+
+      - name: 初始化 Android SDK
+        run: |
+          # 清空旧SDK
+          rm -rf ~/.buildozer/android/platform/android-sdk
+          mkdir -p ~/.buildozer/android/platform/android-sdk
+          cd ~/.buildozer/android/platform/android-sdk
+          
+          # 下载命令行工具
+          curl -sSLO https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q commandlinetools-linux-11076708_latest.zip
+          rm -f commandlinetools-linux-11076708_latest.zip
+          mv cmdline-tools tools
+          
+          # 创建许可证文件（SDK manager需要这个）
+          mkdir -p licenses
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > licenses/android-sdk-license
+          echo "84831b9409646a918e30573bab4c9c91346d8abd" > licenses/android-sdk-preview-license
+          echo "d975f751698a77b662f1254ddbeed3901e976f5a" > licenses/intel-android-extra-license
+          
+          # 安装必要组件
+          yes | tools/bin/sdkmanager --sdk_root=$(pwd) --licenses 2>&1 | tail -2
+          yes | tools/bin/sdkmanager --sdk_root=$(pwd) "platform-tools" "platforms;android-31" 2>&1 | tail -3
+          
+          echo "SDK准备完毕"
 
       - name: 构建 APK
         run: |
