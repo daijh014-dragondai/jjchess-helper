@@ -16,7 +16,7 @@ android.permissions = SYSTEM_ALERT_WINDOW,INTERNET
 android.api = 34
 android.minapi = 29
 android.ndk = 25b
-android.ndk_api = 34
+android.ndk_api = 33
 
 # 包名
 android.package_name = jjchesshelper
