@@ -17,40 +17,26 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 安装依赖
+      - name: 安装依赖（含编译工具）
         run: |
           sudo apt update
           sudo apt install -y \
-            git zip unzip openjdk-17-jdk autoconf libtool \
-            pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev \
-            cmake libffi-dev libssl-dev python3-pip
-          pip install --upgrade pip buildozer cython
+            git zip unzip openjdk-17-jdk autoconf automake libtool \
+            autopoint m4 pkg-config zlib1g-dev libncurses5-dev \
+            libncursesw5-dev cmake libffi-dev libssl-dev python3-pip
+          pip install --upgrade pip buildozer cython setuptools
 
-      - name: 预装 Android SDK 命令行工具并接受所有许可证
+      - name: 预装 Android SDK
         run: |
-          # 清空旧SDK
           rm -rf ~/.buildozer/android/platform/android-sdk
           mkdir -p ~/.buildozer/android/platform/android-sdk
           cd ~/.buildozer/android/platform/android-sdk
-          
-          # 下载命令行工具
           curl -sSLO https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
           unzip -q commandlinetools-linux-11076708_latest.zip
           rm -f commandlinetools-linux-11076708_latest.zip
           mv cmdline-tools tools
-          
-          # 接受所有许可证（用yes自动确认）
-          yes | tools/bin/sdkmanager --sdk_root=$(pwd) --licenses 2>&1 | tail -5
-          
-          # 安装 build-tools 和 platform-tools
-          echo "正在安装 build-tools..."
-          yes | tools/bin/sdkmanager --sdk_root=$(pwd) "platform-tools" "build-tools;37.0.0" "platforms;android-31" 2>&1 | tail -10
-          
-          # 验证已安装
-          echo "=== 验证 ==="
-          ls -la build-tools/
-          echo "build-tools已安装: $(ls build-tools/)"
-          echo "✅ SDK准备完毕"
+          yes | tools/bin/sdkmanager --sdk_root=$(pwd) --licenses 2>&1 | tail -3
+          yes | tools/bin/sdkmanager --sdk_root=$(pwd) "platform-tools" "build-tools;37.0.0" "platforms;android-31" 2>&1 | tail -5
 
       - name: 构建 APK
         run: |
