@@ -24,8 +24,8 @@ android.ndk_api = 29
 android.package_name = jjchesshelper
 
 # AndroidX（必需）
-android.enable_androidx = True
-android.gradle_dependencies = 'androidx.core:core:1.9.0'
+# android.enable_androidx = True
+# android.gradle_dependencies = 'androidx.core:core:1.9.0'
 
 # ARM64（华为麒麟/骁龙）
 android.archs = arm64-v8a
