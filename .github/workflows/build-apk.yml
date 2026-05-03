@@ -26,6 +26,12 @@ jobs:
             libncursesw5-dev cmake libffi-dev libssl-dev python3-pip
           pip install --upgrade pip buildozer cython setuptools
 
+      - name: 设置 Java 17 环境
+        run: |
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
+          sudo update-java-alternatives -s java-1.17.0-openjdk-amd64 2>/dev/null || true
+          java -version
+
       - name: 预装 Android SDK
         run: |
           rm -rf ~/.buildozer/android/platform/android-sdk
