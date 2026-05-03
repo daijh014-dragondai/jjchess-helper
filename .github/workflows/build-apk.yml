@@ -8,49 +8,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/kivy/buildozer:latest
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 设置 Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: 安装编译依赖
-        run: |
-          sudo apt update
-          sudo apt install -y \
-            git zip unzip openjdk-17-jdk python3-pip autoconf \
-            libtool pkg-config zlib1g-dev libncurses5-dev \
-            libncursesw5-dev cmake libffi-dev \
-            libssl-dev libltdl-dev
-          pip install --upgrade pip buildozer cython
-
-      - name: 初始化 Android SDK（含许可证接受）
-        run: |
-          # 预建SDK目录，避免buildozer的交互式提示
-          mkdir -p ~/.buildozer/android/platform
-          
-          # 下载新版命令行工具
-          cd ~/.buildozer/android/platform
-          curl -sSLO https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip -q commandlinetools-linux-11076708_latest.zip
-          rm -f commandlinetools-linux-11076708_latest.zip
-          
-          # Buildozer 期望 tools/bin/sdkmanager
-          mkdir -p android-sdk
-          mv cmdline-tools android-sdk/tools
-          
-          # 接受所有许可证
-          yes | android-sdk/tools/bin/sdkmanager --sdk_root=$(pwd)/android-sdk --licenses > /dev/null 2>&1 || true
-          
-          echo "✅ SDK初始化完成"
-
       - name: 构建 APK
         run: |
           cd ${{ github.workspace }}
-          buildozer android debug 2>&1
+          buildozer android debug
 
       - name: 上传 APK
         uses: actions/upload-artifact@v4
